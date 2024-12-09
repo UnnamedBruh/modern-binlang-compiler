@@ -32,10 +32,17 @@ async function compileProgram(program, files) {
 						reader.readAsDataURL(files[i]);
 					}
 				}
-				worker.postMessage({step: 1, bytecode: data.data.bytecode, processed: prov});
-				worker.onmessage = function(data) {
-					resolve(new Uint8Array(data.data.bytecode));
+				function loop() {
+					if (filesNeededToLoad !== 0) {
+						setTimeout(()=>loop(), 500);
+					} else {
+						worker.postMessage({step: 1, bytecode: data.data.bytecode, processed: prov});
+						worker.onmessage = function(data) {
+							resolve(new Uint8Array(data.data.bytecode));
+						}
+					}
 				}
+				loop();
 			} else {
 				alert(data.data.error);
 				resolve();
