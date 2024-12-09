@@ -52,11 +52,11 @@ self.onmessage = function(event) {
 					}
 					i++;
 					if (tokens[i].match(identifier)) {
-						if (accumulatorCount === 0 || !Object.protoype.hasOwnProperty.call(accumulators, identifier)) {
+						if (accumulatorCount === 0 || !Object.prototype.hasOwnProperty.call(accumulators, identifier)) {
 							accumulators[identifier] = accumulatorCount;
 							accumulatorCount++;
 						}
-						if (accumulators[identifier] !== currentAccummulator) {
+						if (accumulators[identifier] !== currentAccumulator) {
 							bytecodeCount += 2;
 							bytecode.push(1, accumulators[identifier]); // Set the current accumulator to the requested accumulator
 						}
@@ -98,6 +98,8 @@ self.onmessage = function(event) {
 		bytecode.push(255); // Bytecode program ends.
 		if (files.length > 0) {
 			postMessage({type: "fileprocess"}); // Requesting the main thread to process the files for the compiler
+		} else {
+			postMessage({type: "done", bytecode});
 		}
 	} else if (event.data.step === 1) {
 		const bytecode = [...event.data.bytecode];
@@ -154,5 +156,6 @@ self.onmessage = function(event) {
 				}
 			}
 		}
+		postMessage({type: "done", bytecode});
 	}
 }
