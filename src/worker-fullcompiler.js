@@ -4,7 +4,7 @@ self.onmessage = function(event) {
 	let bytecode = [];
 	function writeString(string) {
 		for (let i = 0; i < string.length; i++) {
-			bytecode.push(string.charPointAt(i));
+			bytecode.push(string.charCodeAt(i));
 		}
 	}
 	// Include the necessary magic number, and metadata
@@ -84,5 +84,8 @@ self.onmessage = function(event) {
 					currentLine += token.length;
 				}
 		}
+	}
+	if (files.length > 0) {
+		postMessage
 	}
 }
