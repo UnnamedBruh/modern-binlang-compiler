@@ -71,13 +71,13 @@ document.getElementById('compileButton').addEventListener('click', async functio
     const bytecode = await compileProgram(programInput, [...files]);
     downloadButton.style.display = 'inline-block';
 
-    downloadButton.addEventListener('click', function() {
+    downloadButton.onclick = function() {
       const bytecodeBlob = new Blob([bytecode], { type: 'application/octet-stream' });
       const downloadLink = document.createElement('a');
       downloadLink.href = URL.createObjectURL(bytecodeBlob);
       downloadLink.download = 'compiled_program.bc';
       downloadLink.click();
-    });
+    };
   } catch (error) {
     alert("Error during compilation: " + error.message);
   }
