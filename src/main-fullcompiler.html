@@ -1,3 +1,11 @@
+<h1>Bytecode Compiler</h1>
+<textarea id="programInput" rows="10" cols="50" placeholder="Write your program here..."></textarea><br>
+<label for="fileInput">Upload files:</label>
+<input type="file" id="fileInput" multiple><br><br>
+<button id="compileButton">Compile Program</button>
+<h3>Download Bytecode:</h3>
+<button id="downloadButton" style="display: none;">Download Bytecode</button>
+<script>
 const worker = new Worker("worker-fullcompiler.js");
 async function compileProgram(program, files) {
 	worker.postMessage({step: 0, source: program, files});
@@ -50,3 +58,23 @@ async function compileProgram(program, files) {
 		}
 	}
 }
+document.getElementById('compileButton').addEventListener('click', async function() {
+	const programInput = document.getElementById('programInput').value;
+	const files = document.getElementById('fileInput').files;
+	try {
+		const downloadButton = document.getElementById('downloadButton');
+		downloadButton.style.display = 'none';
+		const bytecode = await compileProgram(programInput, [...files]);
+		downloadButton.style.display = 'inline-block';
+		downloadButton.addEventListener('click', function() {
+			const bytecodeBlob = new Blob([bytecode], { type: 'application/octet-stream' });
+			const downloadLink = document.createElement('a');
+			downloadLink.href = URL.createObjectURL(bytecodeBlob);
+			downloadLink.download = 'compiled_program.bc';
+			downloadLink.click();
+		});
+	} catch (error) {
+		alert("Error during compilation: " + error.message);
+	}
+});
+</script>
