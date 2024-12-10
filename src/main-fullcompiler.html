@@ -8,75 +8,78 @@
 <button id="downloadButton" style="display: none;">Download Bytecode</button>
 <script>
 const worker = new Worker("worker-fullcompiler.js");
+
 async function compileProgram(program, files) {
-	worker.postMessage({step: 0, source: program, files});
-	return new Promise(function(resolve) {
-		worker.onmessage = function(data) {
-			if (data.data.type === "done") {
-				resolve(data.data.bytecode);
-			} else if (data.data.type === "fileprocess") {
-				alert("The files will be processed now (the website may become unresponsive for a few moments).");
-				const canvas = new OffscreenCanvas(1, 1);
-				const ctx = canvas.getContext("2d");
-				const prov = [];
-				let filesNeededToLoad = files.length;
-				for (let i = 0; i < files.length; i++) {
-					const reader = new FileReader();
-					if (["png", "jpg", "jpeg", "ico", "bmp"].includes(files[i].name.split(".").pop())) {
-						reader.onload = function(e) {
-							const image = new Image(e.target.result);
-							image.onload = function() {
-								canvas.width = image.width;
-								canvas.height = image.height;
-								ctx.drawImage(image, 0, 0, +image.width, +image.height);
-								const imageData = ctx.getImageData(0, 0, +canvas.width, +canvas.height);
-								prov.push({info: {width: +image.width, height: +image.height}, data: imageData.data, name: files[i].name});
-								filesNeededToLoad--;
-								canvas.width = 0;
-								canvas.height = 0;
-								image.src = "";
-								image.onload = function() {};
-							}
-						}
-						reader.readAsDataURL(files[i]);
-					}
-				}
-				function loop() {
-					if (filesNeededToLoad !== 0) {
-						setTimeout(()=>loop(), 500);
-					} else {
-						worker.onmessage = function(data) {
-							alert("success");
-							resolve(new Uint8Array(data.data.bytecode));
-						}
-						worker.postMessage({step: 1, bytecode: data.data.bytecode, processed: prov});
-					}
-				}
-				loop();
-			} else {
-				alert(data.data.error);
-				resolve();
-			}
-		}
-	});
+  worker.postMessage({ step: 0, source: program, files });
+
+  return new Promise(function(resolve) {
+    worker.onmessage = function(data) {
+      if (data.data.type === "done") {
+        resolve(data.data.bytecode);
+      } else if (data.data.type === "fileprocess") {
+        alert("The files will be processed now (the website may become unresponsive for a few moments).");
+
+        const canvas = new OffscreenCanvas(1, 1);
+        const ctx = canvas.getContext("2d");
+        const prov = [];
+
+        // Create a promise for each file's image processing
+        const filePromises = Array.from(files).map((file, i) => {
+          return new Promise((resolveFile) => {
+            const reader = new FileReader();
+
+            if (["png", "jpg", "jpeg", "ico", "bmp"].includes(file.name.split(".").pop())) {
+              reader.onload = function(e) {
+                const image = new Image();
+                image.src = e.target.result;
+
+                image.onload = function() {
+                  canvas.width = image.width;
+                  canvas.height = image.height;
+                  ctx.drawImage(image, 0, 0, image.width, image.height);
+                  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                  prov.push({ info: { width: image.width, height: image.height }, data: imageData.data, name: file.name });
+                  resolveFile(); // Resolve this file's promise
+                };
+              };
+              reader.readAsDataURL(file);
+            } else {
+              resolveFile(); // Resolve immediately if not an image
+            }
+          });
+        });
+
+        // Wait for all files to be processed
+        Promise.all(filePromises).then(() => {
+          worker.postMessage({ step: 1, bytecode: data.data.bytecode, processed: prov });
+        });
+      } else {
+        alert(data.data.error);
+        resolve();
+      }
+    };
+  });
 }
+
 document.getElementById('compileButton').addEventListener('click', async function() {
-	const programInput = document.getElementById('programInput').value;
-	const files = document.getElementById('fileInput').files;
-	try {
-		const downloadButton = document.getElementById('downloadButton');
-		downloadButton.style.display = 'none';
-		const bytecode = await compileProgram(programInput, [...files]);
-		downloadButton.style.display = 'inline-block';
-		downloadButton.addEventListener('click', function() {
-			const bytecodeBlob = new Blob([bytecode], { type: 'application/octet-stream' });
-			const downloadLink = document.createElement('a');
-			downloadLink.href = URL.createObjectURL(bytecodeBlob);
-			downloadLink.download = 'compiled_program.bc';
-			downloadLink.click();
-		});
-	} catch (error) {
-		alert("Error during compilation: " + error.message);
-	}
+  const programInput = document.getElementById('programInput').value;
+  const files = document.getElementById('fileInput').files;
+
+  try {
+    const downloadButton = document.getElementById('downloadButton');
+    downloadButton.style.display = 'none';
+    const bytecode = await compileProgram(programInput, [...files]);
+    downloadButton.style.display = 'inline-block';
+
+    downloadButton.addEventListener('click', function() {
+      const bytecodeBlob = new Blob([bytecode], { type: 'application/octet-stream' });
+      const downloadLink = document.createElement('a');
+      downloadLink.href = URL.createObjectURL(bytecodeBlob);
+      downloadLink.download = 'compiled_program.bc';
+      downloadLink.click();
+    });
+  } catch (error) {
+    alert("Error during compilation: " + error.message);
+  }
 });
 </script>
