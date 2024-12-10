@@ -16,7 +16,7 @@ async function compileProgram(program, files) {
 				resolve(data.data.bytecode);
 			} else if (data.data.type === "fileprocess") {
 				alert("The files will be processed now (the website may become unresponsive for a few moments).");
-				const canvas = new OffscreenCanvas();
+				const canvas = new OffscreenCanvas(1, 1);
 				const ctx = canvas.getContext("2d");
 				const prov = [];
 				let filesNeededToLoad = files.length;
