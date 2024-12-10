@@ -188,7 +188,9 @@ self.onmessage = function(event) {
 					if (compressedData.length < fileinfo.data.length) {
 						bytecode.push(1); // Compressed data.
 						bytecode.push(palette.length % 256, palette.length >> 8, ...palette.flat(1));
-						bytecode.push(...compressedData);
+						for (let i = 0; i < compressedData.length; i++) {
+    bytecode.push(compressedData[i]);
+}
 					} else {
 						bytecode.push(0); // Uncompressed data.
 						bytecode.push(...fileinfo.data);
@@ -235,7 +237,10 @@ self.onmessage = function(event) {
 					if (compressedData.length < fileinfo.data.length) {
 						bytecode.push(1); // Compressed data.
 						bytecode.push(palette.length % 256, palette.length >> 8, ...palette.flat(1));
-						bytecode.push(...compressedData);
+						for (let i = 0; i < compressedData.length; i++) {
+    bytecode.push(compressedData[i]);
+}
+
 					} else {
 						bytecode.push(0); // uncompressed data.
 						bytecode.push(...fileinfo.data);
