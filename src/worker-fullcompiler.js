@@ -152,7 +152,7 @@ self.onmessage = function(event) {
 						bytecode.push(fileinfo.data[i], fileinfo.data[i + 1], fileinfo.data[i + 2]);
 					}
 				} else {
-					bytecode.push(...fileinfo.data); // Data can directly be added, since it does not need to have only some of it's data extracted
+					bytecode.push(...Uint8Array.from(fileinfo.data)); // Data can directly be added, since it does not need to have only some of it's data extracted
 				}
 			}
 		}
