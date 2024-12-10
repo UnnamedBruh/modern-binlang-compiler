@@ -57,7 +57,7 @@ async function compileProgram(program, files) {
 				resolve();
 			}
 		}
-	}
+	});
 }
 document.getElementById('compileButton').addEventListener('click', async function() {
 	const programInput = document.getElementById('programInput').value;
