@@ -157,7 +157,7 @@ self.onmessage = function(event) {
 						return true;
 					}
 					for (let i = 0; i < fileinfo.data.length; i += 4) {
-						if (color(fileinfo.data[i], fileinfo.data[i + 3])) {
+						if (color([fileinfo.data[i], fileinfo.data[i + 3]])) {
 							palette.push([fileinfo.data[i], fileinfo.data[i + 3]]);
 						}
 					}
@@ -166,7 +166,11 @@ self.onmessage = function(event) {
 					function findIndex() {
 						for (let i = 0; i < palette.length; i++) {
 							if (palette[i][0] === currentData[0] && palette[i][1] === currentData[1]) {
-								
+								if (palette.length > 255) {
+									return [i % 256, i >> 8];
+								} else {
+									return [i];
+								}
 							}
 						}
 					}
@@ -175,8 +179,58 @@ self.onmessage = function(event) {
 							timesRepeated++;
 						} else {
 							timesRepeated = 1;
-							compressedData.push(timesRepeated, );
+							compressedData.push(timesRepeated, ...findIndex());
 						}
+					}
+					if (compressedData.length < fileinfo.data.length) {
+						bytecode.push(1); // Compressed data.
+						bytecode.push(...compressedData);
+					} else {
+						bytecode.push(0); // Compressed data.
+						bytecode.push(...fileinfo.data);
+					}
+				} else if (!supportsOpacity && supportsRGB) {
+					const palette = [];
+					function color(data) {
+						for (let i = 0; i < palette.length; i++) {
+							if (palette[i][0] === data[0] && palette[i][1] === data[1] && palette[i][2] === data[2]) {
+								return false;
+							}
+						}
+						return true;
+					}
+					for (let i = 0; i < fileinfo.data.length; i += 4) {
+						if (color([fileinfo.data[i], fileinfo.data[i + 1], fileinfo.data[i + 2]])) {
+							palette.push([fileinfo.data[i], fileinfo.data[i + 1], fileinfo.data[i + 2]]);
+						}
+					}
+					const compressedData = [];
+					let i = 0, timesRepeated = 1, currentData = [fileinfo.data[0], fileinfo.data[1], fileinfo.data[3]];
+					function findIndex() {
+						for (let i = 0; i < palette.length; i++) {
+							if (palette[i][0] === currentData[0] && palette[i][1] === currentData[1] && palette[i][2] === currentData[2]) {
+								if (palette.length > 255) {
+									return [i % 256, i >> 8];
+								} else {
+									return [i];
+								}
+							}
+						}
+					}
+					for (; i < fileinfo.data.length; i += 4) {
+						if (currentData[0] === fileinfo.data[i] && currentData[1] === fileinfo.data[i + 1] && currentData[2] === fileinfo.data[i + 2]) {
+							timesRepeated++;
+						} else {
+							timesRepeated = 1;
+							compressedData.push(timesRepeated, ...findIndex());
+						}
+					}
+					if (compressedData.length < fileinfo.data.length) {
+						bytecode.push(1); // Compressed data.
+						bytecode.push(...compressedData);
+					} else {
+						bytecode.push(0); // Compressed data.
+						bytecode.push(...fileinfo.data);
 					}
 				}
 			}
