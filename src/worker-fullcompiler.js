@@ -124,6 +124,9 @@ self.onmessage = function(event) {
 							supportsOpacity = true;
 						}
 					}
+					if (supportsOpacity && supportsRGB && notBlank) {
+						break;
+					}
 				}
 				// Now to decide the image's type.
 				if (!notBlank) {
