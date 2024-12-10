@@ -147,15 +147,37 @@ self.onmessage = function(event) {
 						bytecode.push(fileinfo.data[i]);
 					}
 				} else if (supportsOpacity && !supportsRGB) {
-					for (let i = 0; i < fileinfo.data.length; i += 4) {
-						bytecode.push(fileinfo.data[i], fileinfo.data[i + 3]);
+					const palette = [];
+					function color(data) {
+						for (let i = 0; i < palette.length; i++) {
+							if (palette[i][0] === data[0] && palette[i][1] === data[1]) {
+								return false;
+							}
+						}
+						return true;
 					}
-				} else if (!supportsOpacity && supportsRGB) {
 					for (let i = 0; i < fileinfo.data.length; i += 4) {
-						bytecode.push(fileinfo.data[i], fileinfo.data[i + 1], fileinfo.data[i + 2]);
+						if (color(fileinfo.data[i], fileinfo.data[i + 3])) {
+							palette.push([fileinfo.data[i], fileinfo.data[i + 3]]);
+						}
 					}
-				} else {
-					bytecode.push(...Uint8Array.from(fileinfo.data)); // Data can directly be added, since it does not need to have only some of it's data extracted
+					const compressedData = [];
+					let i = 0, timesRepeated = 1, currentData = [fileinfo.data[0], fileinfo.data[3]];
+					function findIndex() {
+						for (let i = 0; i < palette.length; i++) {
+							if (palette[i][0] === currentData[0] && palette[i][1] === currentData[1]) {
+								
+							}
+						}
+					}
+					for (; i < fileinfo.data.length; i += 4) {
+						if (currentData[0] === fileinfo.data[i] && currentData[1] === fileinfo.data[i + 3]) {
+							timesRepeated++;
+						} else {
+							timesRepeated = 1;
+							compressedData.push(timesRepeated, );
+						}
+					}
 				}
 			}
 		}
