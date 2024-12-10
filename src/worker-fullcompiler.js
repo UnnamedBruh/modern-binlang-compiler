@@ -97,7 +97,7 @@ self.onmessage = function(event) {
 		bytecode[10] = bytecodeCount >> 16;
 		bytecode.push(255); // Bytecode program ends.
 		if (files.length > 0) {
-			postMessage({type: "fileprocess"}); // Requesting the main thread to process the files for the compiler
+			postMessage({type: "fileprocess", bytecode}); // Requesting the main thread to process the files for the compiler
 		} else {
 			postMessage({type: "done", bytecode});
 		}
