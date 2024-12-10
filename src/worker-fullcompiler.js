@@ -175,9 +175,12 @@ self.onmessage = function(event) {
 						}
 					}
 					for (; i < fileinfo.data.length; i += 4) {
-						if (currentData[0] === fileinfo.data[i] && currentData[1] === fileinfo.data[i + 3]) {
+						if (currentData[0] === fileinfo.data[i] && currentData[1] === fileinfo.data[i + 3] && timesRepeated < 255) {
 							timesRepeated++;
 						} else {
+							if (timesRepeated === 255) {
+								i -= 4;
+							}
 							timesRepeated = 1;
 							compressedData.push(timesRepeated, ...findIndex());
 						}
@@ -219,9 +222,12 @@ self.onmessage = function(event) {
 						}
 					}
 					for (; i < fileinfo.data.length; i += 4) {
-						if (currentData[0] === fileinfo.data[i] && currentData[1] === fileinfo.data[i + 1] && currentData[2] === fileinfo.data[i + 2]) {
+						if (currentData[0] === fileinfo.data[i] && currentData[1] === fileinfo.data[i + 1] && currentData[2] === fileinfo.data[i + 2] && timesRepeated < 255) {
 							timesRepeated++;
 						} else {
+							if (timesRepeated === 255) {
+								i -= 4;
+							}
 							timesRepeated = 1;
 							compressedData.push(timesRepeated, ...findIndex());
 						}
