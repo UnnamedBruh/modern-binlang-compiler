@@ -156,6 +156,6 @@ self.onmessage = function(event) {
 				}
 			}
 		}
-		postMessage({type: "done", bytecode});
+		postMessage({type: "done", bytecode: bytecode});
 	}
 }
