@@ -14,7 +14,7 @@ self.onmessage = function(event) {
 		bytecode.push(0, 0); // First subversion; other subversions may be added. Other subversion number is to prevent overflows.
 		bytecode.push(files.length ? 1 : 0);
 		bytecode.push(0, 0, 0) // keep in mind that index 8 and 9 and 10 is where this is stored; used for getting the length of bytecode data.
-		const tokens = program.match(/[a-zA-Z_]+|\[[a-zA-Z]+\]|\-?\d+(\.\d+)?|"(\\"|[^"])*"|[\n\t\r ](?:[\n\t\r ]+)/g), identifier = /^[a-zA-Z_]+$/, type = /^\[[a-zA-Z]\]+$/;
+		const tokens = program.match(/[a-zA-Z_]+|\[[a-zA-Z]+\]|\-?\d+(\.\d+)?|"(\\"|[^"])*"|[\n\t\r ](?:[\n\t\r ]+)/g) || [], identifier = /^[a-zA-Z_]+$/, type = /^\[[a-zA-Z]\]+$/;
 		const count = tokens.length >>> 0, typeMap = {UINT8: 0, UINT16: 1, INT8: 2, INT16: 3};
 		let i = 0, token, accumulatorCount = 0, currentLine = 1, currentAccumulator = 0, bytecodeCount = 0;
 		function info(t) {
