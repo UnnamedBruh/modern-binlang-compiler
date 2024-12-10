@@ -45,10 +45,11 @@ async function compileProgram(program, files) {
 					if (filesNeededToLoad !== 0) {
 						setTimeout(()=>loop(), 500);
 					} else {
-						worker.postMessage({step: 1, bytecode: data.data.bytecode, processed: prov});
 						worker.onmessage = function(data) {
+							alert("success");
 							resolve(new Uint8Array(data.data.bytecode));
 						}
+						worker.postMessage({step: 1, bytecode: data.data.bytecode, processed: prov});
 					}
 				}
 				loop();
