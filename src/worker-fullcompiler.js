@@ -102,7 +102,7 @@ self.onmessage = function(event) {
 			postMessage({type: "done", bytecode});
 		}
 	} else if (event.data.step === 1) {
-		const bytecode = [...event.data.bytecode];
+		const bytecode = event.data.bytecode;
 		for (let i = 0; i < event.data.processed.length; i++) {
 			const fileinfo = event.data.processed[i];
 			const name = fileinfo.name.split(".").pop();
